@@ -12,7 +12,7 @@ if __name__ == "__main__":
             global_data.numW, global_data.nElems, global_data.nNodes)
     
     
-    mocks = Mocks(global_data.nNodes, global_data.numH, global_data.numW, global_data.Height, global_data.Width)
+    mocks = Mocks(global_data)
     
     print(mocks.nodes)
     

@@ -6,18 +6,18 @@ import numpy as np
 class Mocks(object):
     width = 2  # (x, y)
     
-    def __init__(self, height, numH, numW, H, W):
-        self.height = height
-        self.nodes  = np.zeros((height, self.width), dtype=int)
+    def __init__(self, globalObj):
+        self.height = globalObj.nNodes
+        self.nodes  = np.zeros((self.height, self.width), dtype=int)
         
         x, y, k = 0, 0, 0
-        delta_x = H/numH
-        delta_y = W/numW
+        delta_x = globalObj.Height/globalObj.numH
+        delta_y = globalObj.Width/globalObj.numW
         
-        for i in range(numW):
+        for i in range(globalObj.numW):
             x = i * delta_x
             
-            for j in range(numH):
+            for j in range(globalObj.numH):
                 y = j * delta_y
                 
                 self.nodes[k, 0] = x
