@@ -14,6 +14,7 @@ class Mocks(object):
         delta_x = globalObj.Height/globalObj.numH
         delta_y = globalObj.Width/globalObj.numW
         
+        
         for i in range(globalObj.numW):
             x = i * delta_x
             
@@ -33,7 +34,7 @@ class Elements(object):
         self.height = height
         self.ID     = np.zeros((height, self.width), dtype=int)
         
-        j = 0
+        j = 0; r = numH - 1
         
         for i in range(nElems):
             self.ID[i, 0] = j
@@ -42,8 +43,9 @@ class Elements(object):
             self.ID[i, 3] = self.ID[i, 0] + 1
             j += 1
             
-            if not (i % (self.height-2)):
+            if not (j % r):
                  j += 1
+                 r += j
 
 
 
@@ -75,4 +77,38 @@ class GlobalData(object):
         
         self.nElems = int((self.numH - 1)*(self.numW - 1))
         self.nNodes = int(self.numH * self.numW)
+
+
+
+
+def quadratureCalc(fun, x1, x2, rank):
+    period = 1./(1 -(-1))    # normalization
+    det_J  = np.abs(x1 - x2) * period
+    
+    
+    if rank == 2:
+        Node1 = (1 + (1/np.sqrt(3))) * period
+        Node2 = (1 - (1/np.sqrt(3))) * period
+        
+        pc1 = Node1*x1 + Node2*x2
+        pc2 = Node1*x2 + Node2*x1
+        
+        return (fun(pc1) *1 + fun(pc2) *1)* det_J
+    
+    
+    if rank == 3:
+        Node1 = (1 + np.sqrt(3/5)) * period
+        Node2 = period
+        Node3 = (1 - np.sqrt(3/5)) * period
+        
+        pc1 = Node1*x1 + Node3*x2
+        pc2 = Node2 * (x1 + x2)
+        pc3 = Node1*x2 + Node3*x1
+        
+        return (fun(pc1) *(5/9) + fun(pc2) *(8/9) + fun(pc3) *(5/9))* det_J
+    
+    
+    else:
+        
+        return "Cannot calculate this rank."
     

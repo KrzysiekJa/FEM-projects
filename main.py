@@ -1,5 +1,4 @@
-import numpy as np
-from FEM import Mocks, Elements, GlobalData
+from FEM import *
 
 
 
@@ -20,3 +19,6 @@ if __name__ == "__main__":
     elemenets = Elements(global_data.nElems, global_data.nElems, global_data.numH)
     
     print(elemenets.ID)
+    
+    
+    print(quadratureCalc(lambda x: 2* x**2 + 0.1* x + 3, 2.0, 10.0, 3))
