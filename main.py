@@ -1,4 +1,4 @@
-from FEM import *
+from fem.FEM import *
 
 
 
