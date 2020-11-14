@@ -27,6 +27,7 @@ class Mocks(object):
 
 
 
+
 class Elements(object):
     width = 4 # number of nodes for grid's cells
     
@@ -49,6 +50,7 @@ class Elements(object):
 
 
 
+
 class GlobalData(object):
     
     def __init__(self, filepath):
@@ -65,8 +67,8 @@ class GlobalData(object):
             
             self.Height = float(lines[0])
             self.Width  = float(lines[1])
-            self.nNodesH   = int(lines[2])
-            self.nNodesW   = int(lines[3])
+            self.nNodesH = int(lines[2])
+            self.nNodesW = int(lines[3])
             
         except (TypeError, FileNotFoundError) as err:
             print("Occured:", err)
@@ -80,19 +82,40 @@ class GlobalData(object):
 
 
 
+
 class Elements4(object):
     
-    def __init__(self, mocks):
-        dN_dksi = 0.25 * (np.array([-1, 1, 1, -1]) + (np.array([1, -1, 1, -1])/ np.sqrt(3)))
-        dN_deta = 0.25 * (np.array([-1, -1, 1, 1]) + (np.array([1, -1, 1, -1])/ np.sqrt(3)))
+    def __init__(self):
+        dN_deta = np.array([-1, -1, 1, 1])
+        dN_dksi = np.array([-1, 1, 1, -1])
+        diff    = np.array([1, -1, 1, -1])/ np.sqrt(3)
         
-        dx_dksi = np.dot(mocks[:,0], dN_dksi)
-        dy_dksi = np.dot(mocks[:,1], dN_dksi)
-        dx_deta = np.dot(mocks[:,0], dN_deta)
-        dy_deta = np.dot(mocks[:,1], dN_deta)
+        self.integrPointsMatrixX = 0.25 * np.array([dN_dksi - diff, dN_dksi - diff, 
+                                               dN_dksi + diff, dN_dksi + diff])
+        self.integrPointsMatrixY = 0.25 * np.array([dN_deta - diff, dN_deta + diff,
+                                               dN_deta + diff, dN_deta - diff])
         
-        cumulative_matrix = np.array([[dx_dksi, dy_dksi], [dx_deta, dy_deta]])
-        self.jacobian = np.linalg.inv(cumulative_matrix)
+        
+    def calcHMatrix(self, element, index, k):
+        dx_dksi = np.dot(element[:,0], self.integrPointsMatrixX[index, :])
+        dy_dksi = np.dot(element[:,1], self.integrPointsMatrixX[index, :])
+        dx_deta = np.dot(element[:,0], self.integrPointsMatrixY[index, :])
+        dy_deta = np.dot(element[:,1], self.integrPointsMatrixY[index, :])
+        
+        self.jacobian = np.array([[dx_dksi, dy_dksi], [dx_deta, dy_deta]])
+        self.detJacobian  = np.linalg.det(self.jacobian)
+        self.resultMatrix = (1/self.detJacobian) * np.linalg.inv(self.jacobian)
+        
+        
+        result = np.zeros((4,4))
+        
+        for i in range(len(self.integrPointsMatrixX[:, 0])):
+            rowForX = self.resultMatrix[0,0] * self.integrPointsMatrixX[i, :]
+            rowForY = self.resultMatrix[1,1] * self.integrPointsMatrixY[i, :]
+            result  += np.power(self.detJacobian, 3) * (np.outer(rowForX, rowForX.T) + np.outer(rowForY, rowForY.T))
+        
+        return k * result
+
 
 
 

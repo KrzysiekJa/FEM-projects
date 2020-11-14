@@ -12,16 +12,25 @@ if __name__ == "__main__":
     
     
     mocks = Mocks(global_data)
-    
-    print(mocks.nodes)
+    print('Mesh nodes:\n', mocks.nodes)
     
     
     elemenets = Elements(global_data.nElems, global_data.nElems, global_data.nNodesH)
-    
-    print(elemenets.ID)
-    
-    
-    print(quadratureCalc(lambda x: 2* x**2 + 0.1* x + 3, 2.0, 10.0, 3))
+    print('Elements:\n', elemenets.ID, "\n\n")
     
     
-    elem4 = Elements4(mocks.nodes[4:8])
+    print('Testing quadrature function:', quadratureCalc(lambda x: 2* x**2 + 0.1* x + 3, 2.0, 10.0, 3), "\n")
+    
+    
+    elem4 = Elements4()
+    print(elem4.integrPointsMatrixX, '\n', elem4.integrPointsMatrixY, '\n')
+    
+    
+    
+    array = np.array([[0,0], [4,0], [4,6], [0,6]])
+    H_matrix = elem4.calcHMatrix(array, 0, 30)
+    print('Jacobian determinant:\n', elem4.detJacobian, '\nJacobian: \n', elem4.jacobian, '\n')
+    print('H matrix:\n', H_matrix, '\n')
+    
+    
+    
